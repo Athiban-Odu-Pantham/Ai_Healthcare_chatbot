@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="auth-card">
+      <h1>Create Account</h1>
+      <div id="error-message" class="error-message"></div>
+      
+      <form id="register-form">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" placeholder="Enter your full name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" required>
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirm Password</label>
+          <input type="password" id="confirm-password" placeholder="Confirm your password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+      </form>
+      
+      <div class="divider">
+        <span>OR</span>
+      </div>
+      
+      <button id="google-signin" class="btn btn-google">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo">
+        Sign up with Google
+      </button>
+      
+      <p class="auth-link">Already have an account? <a href="login.html">Login</a></p>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  
+  <script>
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyCy8KmhAh4bQxxV2E7sMDzElVmFchEyAJo",
+  authDomain: "contact-4f0db.firebaseapp.com",
+  databaseURL: "https://contact-4f0db-default-rtdb.firebaseio.com",
+  projectId: "contact-4f0db",
+  storageBucket: "contact-4f0db.firebasestorage.app",
+  messagingSenderId: "477815100675",
+  appId: "1:477815100675:web:a0863ef17dcce25b27c536"
+    };
+    
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    
+    // Get elements
+    const registerForm = document.getElementById('register-form');
+    const googleSignIn = document.getElementById('google-signin');
+    const errorMessage = document.getElementById('error-message');
+    
+    // Email/Password registration
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      
+      // Check if passwords match
+      if (password !== confirmPassword) {
+        errorMessage.textContent = 'Passwords do not match';
+        return;
+      }
+      
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          
+          // Update profile with name
+          return user.updateProfile({
+            displayName: name
+          });
+        })
+        .then(() => {
+          window.location.href = 'dashboard.html'; // Redirect to dashboard
+        })
+        .catch((error) => {
+          // Handle errors
+          const errorCode = error.code;
+          const errorMsg = error.message;
+          errorMessage.textContent = errorMsg;
+        });
+    });
+    
+    // Google Sign-up
+    googleSignIn.addEventListener('click', () => {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      
+      firebase.auth().signInWithPopup(provider)
+        .then((result) => {
+          // User signed up
+          const user = result.user;
+          window.location.href = 'login.html'; // Redirect to dashboard
+        })
+        .catch((error) => {
+          // Handle errors
+          const errorCode = error.code;
+          const errorMsg = error.message;
+          errorMessage.textContent = errorMsg;
+        });
+    });
+    
+    // Check if user is already signed in
+    //firebase.auth().onAuthStateChanged((user) => {
+      //if (user) {
+        // User is signed in, redirect to dashboard
+        //window.location.href = 'dashboard.html';
+      //}
+    //});
+  </script>
+</body>
+</html>
+
